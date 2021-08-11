@@ -1,0 +1,21 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Log out </title>
+  <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+</head>
+
+<body class =" flex items-center justify-center h-screen bg-green-500">
+ <div class="flex flex-col items-center justify-center mb-40 space-y-10">
+    <p class="font-sans text-white text-5xl font-semibold"> You've just logged out. Until next time!</p>
+    <a class="underline font-sans text-white text-xl font-semibold" href="{{url_for('login')}}"> 
+        Log back in 
+    </a>
+
+ </div>
+
+
+</body>
+
+</html>
