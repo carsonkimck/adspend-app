@@ -47,15 +47,9 @@ def login():
         password = request.form.get("password")
 
         user=User.query.filter_by(username=username).first()
-        print("here is the username" + username)
-        print(User)
-        print(user)
-        print(user.password)
-        print(password)
-
         
         if not user or not check_password_hash(user.password, password):
-            flash("This user does not exist!")
+            flash("Incorrect username or password!")
             return redirect(url_for('login'))
         else:
             login_user(user, remember=True)
