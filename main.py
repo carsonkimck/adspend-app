@@ -22,6 +22,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String, unique=True)
     etsy_key = db.Column(db.String, unique=True)
     etsy_secret = db.Column(db.String, unique=True)
+    spreadsheetId = db.Column(db.String, unique=True)
     
 
     def __init__(self, username, password):
@@ -29,6 +30,7 @@ class User(UserMixin, db.Model):
         self.password = password
         self.etsy_key = None
         self.etsy_secret = None
+        self.spreadsheetId = None
 
 #instantiating, intializing login manager
 login_manager =LoginManager()
@@ -104,27 +106,36 @@ def home():
 
 @app.route('/getsheet', methods=['GET', 'POST'])
 def getsheet():
-      # Get My Sheet! 
-    if(session.get('google_token') != None):
 
-        # Refresh the token when we hit the make another API call 
-
-        token = session['google_token']
-        print(token['expires_in'])
-        googleauth.refreshToken()
-        sheet = "google.com"
-        print(token)
-        return redirect(sheets.createNewSheet())
-        
-              
-    else:
+    token = session.get('google_token')
+    if (token == None):
         flash('Please authorize your Google account before proceeding.')
-        sheet = "#"
+        return redirect(url_for('getsheet'))
+        
 
+    # Refresh the token when we hit the make another API call if it aint fresh! 
+    if (time() >= session['google_token_expir']):
+        print(session['google_token_expir'])
+        googleauth.refreshToken()
+   
+
+    # Get My Sheet! 
+    user=User.query.filter_by(username=current_user.username).first()
+    mySheetId = user.spreadsheetId 
+
+    if (mySheetId== None):
+        # if we don't have a recorded sheet, create a new one
+
+        return redirect(sheets.createNewSheet())
+    else:
+        return redirect(sheets.updateSheet(mySheetId))
+    
+
+   
+ 
 
 @app.route('/googlelogin', methods = ['GET'])
 def googlelogin():
-
         googleauth.authorizeGoogle()
         return redirect(session.get('google_url'))
   

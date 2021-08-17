@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "css-purge": "purgecss -css \"static/style.css\" --content \"./templates/*.html\" --output static/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
