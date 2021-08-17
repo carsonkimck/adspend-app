@@ -36,7 +36,7 @@ def fetchToken(verifier, user):
     access_url = "https://openapi.etsy.com/v2/oauth/access_token"
     oauth_tokens = oauth.fetch_access_token(access_url)
    
-    # add oauth tokens to user in db
+    # store oauth token to user in persistent db
     oauth_key = oauth_tokens.get('oauth_token')
     oauth_secret = oauth_tokens.get('oauth_token_secret')
     user_ = main.User.query.filter_by(username=user.username).first()

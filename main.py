@@ -1,15 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for, flash 
+from flask import Flask, render_template, request, redirect, url_for, flash, session 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import insert, select, update
 from sqlalchemy.sql.functions import count, user
 from sqlalchemy.sql import func
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 from werkzeug.security import generate_password_hash, check_password_hash
-import etsyauth, sheets
+import etsyauth, googleauth, sheets
+from time import time
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:password@localhost/adspend-app'
 app.config['SECRET_KEY'] = "test"
+
 
 db=SQLAlchemy(app)
 
@@ -68,27 +70,72 @@ def logout():
 @app.route('/home', methods = ['POST', 'GET'])
 @login_required
 def home():
+
     user = User.query.filter_by(username=current_user.username).first()
+   
+    # Google Authentication
+    google_code = request.args.get('code')
+    if (google_code != None):
+        print("Fetching token for " + google_code)
+        googleauth.fetchToken(request.url, user)
+
+        
+    # Etsy Authentication 
     hasEtsyKey = False
     etsy_auth_string = None
   
-    # get verification code for etsy
     if request.method == "POST":
-        verification=request.form.get("etsy-verif")
-        etsyauth.fetchToken(verification, current_user)
-    
+        etsy_code=request.form.get("etsy-verif")
+        etsyauth.fetchToken(etsy_code, current_user)
+
     if (user.etsy_key != None):
         hasEtsyKey= True
     else:
         etsy_auth_string = etsyauth.authorizeEtsy()
+    
+    
+    token = session.get('google_token')
+    hasGoogleToken = True if token != None else False
+    sheet = url_for('getsheet') if hasGoogleToken else "#" 
 
-    sheets.getSheet()
+    return render_template("home.html", etsy_access=etsy_auth_string, etsy_key=hasEtsyKey, 
+                           google_access=request.url, google_token=hasGoogleToken, sheetlink=sheet)
 
-    return render_template("home.html", etsy_access=etsy_auth_string, etsy_key=hasEtsyKey)
+
+@app.route('/getsheet', methods=['GET', 'POST'])
+def getsheet():
+      # Get My Sheet! 
+    if(session.get('google_token') != None):
+
+        # Refresh the token when we hit the make another API call 
+
+        token = session['google_token']
+        print(token['expires_in'])
+        googleauth.refreshToken()
+        sheet = "google.com"
+        print(token)
+        return redirect(sheets.createNewSheet())
+        
+              
+    else:
+        flash('Please authorize your Google account before proceeding.')
+        sheet = "#"
+
+
+@app.route('/googlelogin', methods = ['GET'])
+def googlelogin():
+
+        googleauth.authorizeGoogle()
+        return redirect(session.get('google_url'))
   
 @app.route('/signup')
 def signup():
     return render_template("signup.html")
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080, debug=True)
+
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

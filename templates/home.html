@@ -17,9 +17,21 @@
   
  <div class="flex flex-col items-center justify-center mb-40">
     <p class="font-sans text-white text-5xl font-semibold filter drop-shadow-sm mt-4 mb-10"> Home </p>
-    <a href="http://google.com" target="_blank">
+  {% if not google_token %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+     <p class="font-sans text-s text-white bold italic mb-2">
+      {{messages[0]}}
+     </p>
+     {% endif %}
+  {% endwith %}
+  {% endif %}
+  
+    <a href={{sheetlink}} target="_blank">
     <button class="w-full text-2xl bg-green-400 hover:bg-green-600 text-white font-bold py-8 px-16 rounded"> Get my sheet </button>
     </a>
+
+
     {% if not etsy_key %}
     <div class="mt-10">
       <a href={{etsy_access}} target="_blank">
@@ -38,6 +50,14 @@
     </div>
     {% endif %}
 
+    <div id="google_auth" class="mt-10">
+      <a href="{{url_for('googlelogin')}}">
+      <button class="w-full text-2xl bg-blue-400 hover:bg-blue-600 text-white font-bold py-8 px-16 rounded">
+        Authorize google
+      </button>
+      </a>
+    </div>
  </div>
+ 
 </body>
 </html>
