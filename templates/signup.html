@@ -8,8 +8,51 @@
 
 <body class =" flex items-center justify-center h-screen bg-green-500">
  <div class="flex flex-col items-center justify-center mb-40">
-    <p class="font-sans text-white text-5xl font-semibold filter drop-shadow-sm mb-10"> Page not ready yet! </p>
-    <p class="font-sans text-white text-4xl font-semibold filter drop-shadow-sm mb-10"> (We're working very hard!) </p>
+  <p class="font-sans text-white text-4xl font-semibold filter drop-shadow-sm mb-6"> Sign Up for Ad Spend Saver</p>
+  <div class="flex flex-col bg-green-300 w-full px-24 py-12 shadow-lg rounded"> 
+  <form action="{{url_for('signup')}}" method = "POST">
+      <form class="px-8 pt-6 pb-8 mb-4">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+         <p class="font-sans text-xs -semibold text-red-500 italic">
+            {{ messages[0] }} 
+         </p>
+            {% endif %}
+            {% endwith %}
+         <div class="mb-4 pt-4">
+            <label class="block text-green-800 text-lg font-semibold mb-2" for="username" name="username">
+            Username
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required 
+                   name="username" type="text" placeholder="Username">
+         </div>
+         <div class="mb-6">
+            <label class="block text-green-800 text-lg font-semibold mb-2" for="password">
+            Password
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  required name="password" id="password" type="password" placeholder="******************">
+         </div>
+         <div class="mb-6">
+          <label class="block text-green-800 text-lg font-semibold mb-2" for="magic_code" name="magic_code">
+          Magic Code 
+          </label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                required name="magic_code" id="magic_code" placeholder="Enter your access key">
+       </div>
+         <div class="flex items-center">
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                    name="username" type="button">
+            Sign Up
+            </button>
+         </div>
+   </form>
+</div>
+
+<p class="text-white mt-4"> Already have an account? </p>
+<a href="{{url_for('login')}}"> 
+<p class="text-white underline"> Log in here </p>
+</a>
 
  </div>
 
