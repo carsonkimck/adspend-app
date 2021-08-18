@@ -34,9 +34,9 @@
 
     {% if not etsy_key %}
     <div class="mt-10">
-      <a href={{etsy_access}} target="_blank">
+      <a href="{{url_for('etsylogin')}}">
       <button class="w-full text-2xl bg-red-400 hover:bg-green-600 text-white font-bold py-8 px-16 rounded">
-        Authorize Etsy 
+        Authorize Etsy Account
       </button>
       </a>
       <form method = "POST">
@@ -53,7 +53,7 @@
     <div id="google_auth" class="mt-10">
       <a href="{{url_for('googlelogin')}}">
       <button class="w-full text-2xl bg-blue-400 hover:bg-blue-600 text-white font-bold py-8 px-16 rounded">
-        Authorize google
+        Authorize Google Account
       </button>
       </a>
     </div>
