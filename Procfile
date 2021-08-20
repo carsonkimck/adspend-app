@@ -1,1 +1,1 @@
-web: gunicorn main:adspend-app
+web: gunicorn main:app
