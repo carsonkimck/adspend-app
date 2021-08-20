@@ -1,11 +1,6 @@
 import main, config
 import requests
-from typing import Text
 from requests_oauthlib import OAuth1, OAuth1Session
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import insert, select, update
-from sqlalchemy.sql.functions import count, user
-from sqlalchemy.sql import func
 from flask import session
 
 api_key = config.etsy_api_creds["api_key"]

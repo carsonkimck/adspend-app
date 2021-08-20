@@ -1,16 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session 
 from flask_sqlalchemy import SQLAlchemy
-import requests
-from sqlalchemy import insert, select, update
-from sqlalchemy.sql.expression import true
-from sqlalchemy.sql.functions import count, user
-from sqlalchemy.sql import func
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 from werkzeug.security import generate_password_hash, check_password_hash
 import etsyauth, googleauth, sheets
 from time import time
 from config import access_key
-import webbrowser
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:password@localhost/adspend-app'
