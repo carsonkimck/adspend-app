@@ -11,7 +11,7 @@ sheet_template_id = config.sheet_template_id
 
 def createNewSheet():
     user = main.current_user 
-    oauth = OAuth2Session(config.goog_api_creds["api_key"], token=session.get("google_token"))
+    oauth = OAuth2Session(config.google_api_key, token=session.get("google_token"))
     
     # attempt to connect to Google, see if token is fresh
   
