@@ -10,7 +10,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 api_key = config.google_api_key
 secret_key = config.google_secret_key
-redirect_uri = "http://127.0.0.1:8080/home"
+redirect_uri = config.google_callback_uri
 scope = ['https://www.googleapis.com/auth/spreadsheets']
 token_url = "https://www.googleapis.com/oauth2/v4/token"
 

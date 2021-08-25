@@ -3,9 +3,10 @@ import requests
 from requests_oauthlib import OAuth1, OAuth1Session
 from flask import session
 
+
 api_key = config.etsy_api_key
 secret_key = config.etsy_secret_key
-callback_uri = "http://127.0.0.1:8080/home"
+callback_uri = config.etsy_callback_uri 
 
 # Fetch Request Token 
 def authorizeEtsy():
