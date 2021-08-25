@@ -3,33 +3,31 @@ import requests
 from requests_oauthlib import OAuth1, OAuth1Session
 from flask import session
 
-api_key = config.etsy_api_creds["api_key"]
-secret_key = config.etsy_api_creds["secret_key"]
+api_key = config.etsy_api_key
+secret_key = config.etsy_secret_key
 callback_uri = "http://127.0.0.1:8080/home"
 
 # Fetch Request Token 
 def authorizeEtsy():
     # if user hasn't authorized yet, set the resource owner tokens and allow them to access link. 
-    if(config.etsy_resource["key"] == None): 
-        oauth = OAuth1Session(api_key, client_secret=secret_key, callback_uri=callback_uri)
-        request_token_url = "https://openapi.etsy.com/v2/oauth/request_token?scope=email_r%20billing_r"
-        fetch_response = oauth.fetch_request_token(request_token_url)
+    oauth = OAuth1Session(api_key, client_secret=secret_key, callback_uri=callback_uri)
+    request_token_url = "https://openapi.etsy.com/v2/oauth/request_token?scope=email_r%20billing_r"
+    fetch_response = oauth.fetch_request_token(request_token_url)
 
-        login_url = fetch_response.get('login_url')
-        
-        config.etsy_resource["key"] = fetch_response.get('oauth_token')
-        config.etsy_resource["secret"] = fetch_response.get('oauth_token_secret')
+    login_url = fetch_response.get('login_url')
+    
+    session['resource_key'] = fetch_response.get('oauth_token')
+    session['resource_secret'] = fetch_response.get('oauth_token_secret')
+    session["etsy_url"] = login_url
 
-        print(login_url)
-        session["etsy_url"] = login_url
-        return login_url
+    return login_url
 
 # Fetch Access Token 
 def fetchToken(verifier, user): 
     oauth = OAuth1Session(api_key,
                             client_secret=secret_key,
-                            resource_owner_key=config.etsy_resource["key"],
-                            resource_owner_secret=config.etsy_resource["secret"],
+                            resource_owner_key=session['resource_key'],
+                            resource_owner_secret=session['resource_secret'],
                             verifier=verifier)
 
     access_url = "https://openapi.etsy.com/v2/oauth/access_token"

@@ -85,7 +85,7 @@ def updateSheet(spreadsheet_id):
     # accounts["Pinterest"][1] = 5000
 
     # update all account charges! 
-    google = OAuth2Session(config.goog_api_creds["api_key"], token=session.get("google_token"))
+    google = OAuth2Session(config.google_api_key, token=session.get("google_token"))
   
     keys = accounts.keys()
     print(keys)

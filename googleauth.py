@@ -8,8 +8,8 @@ from time import time
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-api_key = config.goog_api_creds["api_key"]
-secret_key = config.goog_api_creds["secret_key"]
+api_key = config.google_api_key
+secret_key = config.google_secret_key
 redirect_uri = "http://127.0.0.1:8080/home"
 scope = ['https://www.googleapis.com/auth/spreadsheets']
 token_url = "https://www.googleapis.com/oauth2/v4/token"
@@ -60,4 +60,26 @@ def refreshToken():
     **extra)
 
 def getGoogleAdsCharges():
+    reportRequestBody = ''' <reportDefinition xmlns="https://adwords.google.com/api/adwords/cm/v201809">
+<selector>
+<fields>CampaignId</fields>
+<fields>AdGroupId</fields>
+<fields>Cost</fields>
+<predicates>
+  <field>AdGroupStatus</field>
+  <operator>IN</operator>
+  <values>ENABLED</values>
+  <values>PAUSED</values>
+</predicates>
+</selector>
+<reportName>Custom Adgroup Performance Report</reportName>
+<reportType>ADGROUP_PERFORMANCE_REPORT</reportType>
+<dateRangeType>LAST_7_DAYS</dateRangeType>
+<downloadFormat>CSV</downloadFormat>
+</reportDefinition>'''
+
+
+
+
+
     return 5000

@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
 </head>
 
-<body class =" bg-green-500">
+<body class="h-screen bg-green-500">
     <div class="absolute my-4 mx-8 top-0 right-0">
       <a href="{{url_for('logout')}}">
       <button class="w-full text-2xl bg-green-400 hover:bg-green-600 text-white font-bold py-4 px-8 rounded"> Log out </button>
@@ -39,15 +39,8 @@
         Authorize Etsy Account
       </button>
       </a>
-      <form method = "POST">
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required 
-                      name="etsy-verif" type="text" placeholder="etsy-verif">
-        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
-          name="username" type="button">
-          Submit
-               </button>
-      </form>
     </div>
+    
     {% endif %}
 
     <div id="google_auth" class="mt-10">
@@ -57,7 +50,14 @@
       </button>
       </a>
     </div>
+    
+    {% if not etsy_key %}
+    <div class="text-white mt-10">
+      The term 'Etsy' is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.
+    </div>
+    {% endif %}
  </div>
- 
+
+
 </body>
 </html>
