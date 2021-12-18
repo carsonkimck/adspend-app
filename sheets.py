@@ -91,11 +91,8 @@ def updateSheet(spreadsheet_id):
     print(keys)
 
     for key in keys:
-
         range = accounts[key][0]
         value = accounts[key][1]
-        print(range)
-        print(value)
 
         r = google.get("https://sheets.googleapis.com/v4/spreadsheets/{id}/values/{range}".format(
             id=spreadsheet_id, range=range)
@@ -111,8 +108,10 @@ def updateSheet(spreadsheet_id):
             string = string.replace(",", '')
             existing_charges = float(string)
         
-        total = value + existing_charges
-    
+        # just update with current monthly total, if there's already value there
+        if existing_charges != 0:
+            total = value
+
         request_body = {
             "values": [
                 [total]

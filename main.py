@@ -31,7 +31,7 @@ class User(UserMixin, db.Model):
         self.spreadsheetId = None
 
 #instantiating, intializing login manager
-login_manager =LoginManager()
+login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
@@ -54,6 +54,12 @@ def index():
         return redirect(url_for('home'))
     return render_template('index.html')
 
+
+@app.route('/privacy', methods = ['GET'])
+def privacy():
+
+    return render_template('privacy.html')
+
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     if(current_user.is_authenticated):
@@ -70,8 +76,6 @@ def signup():
             flash("A user with this username already exists!")
             return redirect(url_for('signup'))
         
-        print(magic_code)
-        print(access_key)
 
         if (magic_code != access_key):
             flash("Invalid magic code!")
@@ -124,22 +128,17 @@ def home():
     # Google Authentication
     google_code = request.args.get('code')
     if (google_code != None):
-        print("Fetching token for " + google_code)
         googleauth.fetchToken(request.url, user)
 
         
     # Etsy Authentication 
     hasEtsyKey = True if (user.etsy_key != None) else False
     etsy_code = request.args.get('oauth_verifier')
-    print(etsy_code)
-
 
     if etsy_code != None and not hasEtsyKey:   
         etsyauth.fetchToken(etsy_code, current_user)
         return redirect(url_for('home'))
 
-
-     
     token = session.get('google_token')
     hasGoogleToken = True if token != None else False
     sheet = url_for('getsheet') if hasGoogleToken else "#" 
