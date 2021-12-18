@@ -18,8 +18,8 @@ class User(UserMixin, db.Model):
     id=db.Column(db.Integer, primary_key=True)
     username=db.Column(db.String(30), unique=True)
     password = db.Column(db.String, unique=True)
-    etsy_key = db.Column(db.String, unique=True)
-    etsy_secret = db.Column(db.String, unique=True)
+    etsy_key = db.Column(db.String)
+    etsy_secret = db.Column(db.String)
     spreadsheetId = db.Column(db.String, unique=True)
     
 
@@ -77,7 +77,6 @@ def signup():
             flash("Invalid magic code!")
             return redirect(url_for('signup'))
         
-
         new_user = User(username=username, password=generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
@@ -131,15 +130,15 @@ def home():
         
     # Etsy Authentication 
     hasEtsyKey = True if (user.etsy_key != None) else False
-
     etsy_code = request.args.get('oauth_verifier')
     print(etsy_code)
+
+
     if etsy_code != None and not hasEtsyKey:   
         etsyauth.fetchToken(etsy_code, current_user)
         return redirect(url_for('home'))
 
 
-    hasEtsyKey = True if (user.etsy_key != None) else False
      
     token = session.get('google_token')
     hasGoogleToken = True if token != None else False

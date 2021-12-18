@@ -4,6 +4,9 @@ import main, config
 from typing import Text
 from requests_oauthlib import OAuth2Session
 from time import time 
+import json
+import requests
+
 
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -11,7 +14,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 api_key = config.google_api_key
 secret_key = config.google_secret_key
 redirect_uri = config.google_callback_uri
-scope = ['https://www.googleapis.com/auth/spreadsheets']
+scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/adwords']
 token_url = "https://www.googleapis.com/oauth2/v4/token"
 
 
@@ -34,9 +37,6 @@ def fetchToken(url, user):
            authorization_response=url,
             )
 
-    print(token)
-    print(oauth)
-   
 
     session['google_token'] = token
     session['google_token_expir'] = token['expires_in'] + time()
@@ -60,26 +60,39 @@ def refreshToken():
     **extra)
 
 def getGoogleAdsCharges():
-    reportRequestBody = ''' <reportDefinition xmlns="https://adwords.google.com/api/adwords/cm/v201809">
-<selector>
-<fields>CampaignId</fields>
-<fields>AdGroupId</fields>
-<fields>Cost</fields>
-<predicates>
-  <field>AdGroupStatus</field>
-  <operator>IN</operator>
-  <values>ENABLED</values>
-  <values>PAUSED</values>
-</predicates>
-</selector>
-<reportName>Custom Adgroup Performance Report</reportName>
-<reportType>ADGROUP_PERFORMANCE_REPORT</reportType>
-<dateRangeType>LAST_7_DAYS</dateRangeType>
-<downloadFormat>CSV</downloadFormat>
-</reportDefinition>'''
+    payload = {"query" : ''' 
+                SELECT
+                campaign.name,
+                campaign.status,
+                segments.device,
+                metrics.impressions,
+                metrics.clicks,
+                metrics.ctr,
+                metrics.average_cpc,
+                metrics.cost_micros
+                FROM campaign
+                WHERE segments.date DURING THIS_MONTH
+            '''
+    }
+
+    print("hellloo")
+    print(session.get("google_token"))
+    access_token = session.get("google_token")["access_token"]
+
+    customer_id = "491-551-6145"
+
+    url = "https://googleads.googleapis.com/v9/customers/{customer_id}/googleAds:searchStream".format(customer_id=customer_id)
 
 
+    google = OAuth2Session(config.google_api_key, token=session.get("google_token"))
+    r = google.put(url=url, params=payload)
+    print(r.text)
+    
+
+    print("status code: ")
+    print(r.text)
+    
+
+   # https://developers.google.com/google-ads/api/reference/rpc/v9/Metrics#cost_micros
 
 
-
-    return 5000

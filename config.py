@@ -11,3 +11,5 @@ google_callback_uri = config('google_callback_uri')
 sheet_template_id =config('sheet_template_id')
 access_key = config('access_key')
 database_url = config('DATABASE_URL')
+
+ads_dev_token = "0-nDqCrQSAjtwsAtrL79hw"
