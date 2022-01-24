@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 from werkzeug.security import generate_password_hash, check_password_hash
-import etsyauth, googleauth, sheets
+import etsyauth, googleauth, sheets, pinterestauth
 from time import time
 from config import access_key, database_url
+
 
 database_url = database_url.replace("postgres://", "postgresql://", 1)
 app = Flask(__name__)
@@ -125,12 +126,21 @@ def home():
 
     user = User.query.filter_by(username=current_user.username).first()
    
-    # Google Authentication
-    google_code = request.args.get('code')
-    if (google_code != None):
-        googleauth.fetchToken(request.url, user)
+   # Pinterest Authentication
 
-        
+    print(session.get('auth_code_type'))
+    if (session.get('auth_code_type') == 'pinterest'):
+       pinterest_code = request.args.get('code')
+       print("helloooo")
+       pinterestauth.fetchToken(pinterest_code)
+
+    # Google Authentication
+    if (session.get('auth_code_type') == 'google'): 
+        google_code = request.args.get('code')
+        if (google_code != None):
+            googleauth.fetchToken(request.url, user)
+
+
     # Etsy Authentication 
     hasEtsyKey = True if (user.etsy_key != None) else False
     etsy_code = request.args.get('oauth_verifier')
@@ -184,6 +194,13 @@ def etsylogin():
         etsyauth.authorizeEtsy()
         print("authorized?")
         return redirect(session.get('etsy_url'))
+
+@app.route('/pinterestlogin', methods=['GET'])
+def pinterestlogin():
+        pinterestauth.authorizePinterest()
+        print("Pinterest has been authorized ")
+        print(session.get('pinterest_url'))
+        return redirect(session.get('pinterest_url'))
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

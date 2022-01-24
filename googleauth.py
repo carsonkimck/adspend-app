@@ -24,12 +24,13 @@ def authorizeGoogle():
     url = auth_url[0]
     session['oauth_state'] = auth_url[1]
     session['google_url'] = url
-    print("Creating state for url... " + session['oauth_state'])
+    
+    # sets the session to accept the Google code in redirect uri 
+    session['auth_code_type'] = 'google'
     return url 
    
 def fetchToken(url, user):
-    oauth = OAuth2Session(api_key, redirect_uri=redirect_uri, state=session['oauth_state'])
-    print("we sending this to google" + url)
+    oauth = OAuth2Session(api_key, redirect_uri=redirect_uri, state=session.get('oauth_state'))
 
     token = oauth.fetch_token(
             token_url,
@@ -42,8 +43,6 @@ def fetchToken(url, user):
     session['google_token_expir'] = token['expires_in'] + time()
     session['google_refresh'] = token["refresh_token"]
     
-
-    print(session['google_token_expir'])
     
 def refreshToken():
    
@@ -74,23 +73,24 @@ def getGoogleAdsCharges():
                 WHERE segments.date DURING THIS_MONTH
             '''
     }
-
-    print("hellloo")
-    print(session.get("google_token"))
-    access_token = session.get("google_token")["access_token"]
-
+    
     customer_id = "491-551-6145"
-
     url = "https://googleads.googleapis.com/v9/customers/{customer_id}/googleAds:searchStream".format(customer_id=customer_id)
 
 
     google = OAuth2Session(config.google_api_key, token=session.get("google_token"))
     r = google.put(url=url, params=payload)
-    print(r.text)
+
+    response = json.loads(r.text)
+
+    print(response)
+    cost_micros = response["results"]["metrics.cost_micros"]
+    print(cost_micros)
+    dollar_spend = cost_micros/1000000
+    return dollar_spend
     
 
-    print("status code: ")
-    print(r.text)
+
     
 
    # https://developers.google.com/google-ads/api/reference/rpc/v9/Metrics#cost_micros
