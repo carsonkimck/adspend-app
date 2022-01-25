@@ -35,7 +35,7 @@ def authorizePinterest():
     session['auth_code_type'] = 'pinterest'
   
    
-def fetchToken(authCode):
+def fetchToken(authCode, user):
 
     token_url = "https://api.pinterest.com/v5/oauth/token"
     
@@ -68,6 +68,13 @@ def fetchToken(authCode):
     
     print(access_token)
     print(refresh_token)
+
+    user_ = main.User.query.filter_by(username=user.username).first()
+    user_.pinterest_token = access_token
+    user_.pinterest_refresh= refresh_token
+    main.db.session.commit()
+
+    print("Committed the following info to database: " + user_.pinterest_token + "and " + user_.pinterest_refresh)
 
     session['pinterest_token'] = access_token
     session['pinterest_refresh'] = refresh_token

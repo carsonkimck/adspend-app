@@ -14,6 +14,7 @@ app.config['SECRET_KEY'] = "test"
 
 db=SQLAlchemy(app)
 
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id=db.Column(db.Integer, primary_key=True)
@@ -22,6 +23,8 @@ class User(UserMixin, db.Model):
     etsy_key = db.Column(db.String)
     etsy_secret = db.Column(db.String)
     spreadsheetId = db.Column(db.String, unique=True)
+    pinterest_token= db.Column(db.String)
+    pinterest_refresh = db.Column(db.String)
     
 
     def __init__(self, username, password):
@@ -30,11 +33,19 @@ class User(UserMixin, db.Model):
         self.etsy_key = None
         self.etsy_secret = None
         self.spreadsheetId = None
+        self.pinterest_token = None
+        self.pinterest_refresh = None
 
 #instantiating, intializing login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
+# Create database 
+db.create_all()
+db.session.commit()
+
 
 @login_manager.user_loader
 def load(user_id):
@@ -125,14 +136,15 @@ def logout():
 def home():
 
     user = User.query.filter_by(username=current_user.username).first()
+
+    pinterest_redirect = False 
+    if request.args.get('state') == None and request.args.get('code') != None:
+        pinterest_redirect = True
    
    # Pinterest Authentication
-
-    print(session.get('auth_code_type'))
-    if (session.get('auth_code_type') == 'pinterest'):
+    if (pinterest_redirect):
        pinterest_code = request.args.get('code')
-       print("helloooo")
-       pinterestauth.fetchToken(pinterest_code)
+       pinterestauth.fetchToken(pinterest_code, user)
 
     # Google Authentication
     if (session.get('auth_code_type') == 'google'): 
