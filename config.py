@@ -5,8 +5,8 @@ etsy_secret_key =config('etsy_secret_key')
 etsy_callback_uri = config('etsy_callback_uri')
 
 
-pinterest_api_key = "1474822"
-pinterest_secret_key = "918ff10906c72375ac6323fe2396984b71f57fa4"
+pinterest_api_key = config('pinterest_api_key')
+pinterest_secret_key = config('pinterest_secret_key')
 
 google_api_key = config('google_api_key')
 google_secret_key = config('google_secret_key')

@@ -18,19 +18,24 @@ scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis
 token_url = "https://www.googleapis.com/oauth2/v4/token"
 
 
-def authorizeGoogle():
+async def authorizeGoogle():
     oauth = OAuth2Session(api_key, redirect_uri=redirect_uri, scope=scope)
     auth_url = oauth.authorization_url('https://accounts.google.com/o/oauth2/auth', access_type="offline", prompt="consent")
     url = auth_url[0]
     session['oauth_state'] = auth_url[1]
+    # changes modified state
+    session.modified = True
+
     session['google_url'] = url
     
     # sets the session to accept the Google code in redirect uri 
     session['auth_code_type'] = 'google'
-    return url 
+
+   #  fetchToken(url)
    
-def fetchToken(url, user):
-    oauth = OAuth2Session(api_key, redirect_uri=redirect_uri, state=session.get('oauth_state'))
+def fetchToken(url, user, google_state):
+   
+    oauth = OAuth2Session(api_key, redirect_uri=redirect_uri, state=google_state)
 
     token = oauth.fetch_token(
             token_url,
@@ -73,7 +78,7 @@ def getGoogleAdsCharges():
                 WHERE segments.date DURING THIS_MONTH
             '''
     }
-    
+
     customer_id = "491-551-6145"
     url = "https://googleads.googleapis.com/v9/customers/{customer_id}/googleAds:searchStream".format(customer_id=customer_id)
 

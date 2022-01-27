@@ -25,16 +25,9 @@ def authorizePinterest():
         "scope": "ads:read"
     }
 
-    r = requests.get("https://www.pinterest.com/oauth/", params=payload)
-
-  
-      
+    r = requests.get("https://www.pinterest.com/oauth/", params=payload)      
     session['pinterest_url'] = r.url
-
-    # sets the session status to accept pinterest codes
-    session['auth_code_type'] = 'pinterest'
   
-   
 def fetchToken(authCode, user):
 
     token_url = "https://api.pinterest.com/v5/oauth/token"
@@ -50,7 +43,6 @@ def fetchToken(authCode, user):
     base64_bytes = base64.b64encode(str_bytes)
     base64_string = base64_bytes.decode("ascii")
 
-    print(base64_string)
     headers = {
      "Authorization" : "Basic " + base64_string,
      "Content-Type" : "application/x-www-form-urlencoded"
@@ -58,26 +50,17 @@ def fetchToken(authCode, user):
     }
 
     r = requests.post(token_url, data=payload, headers=headers)
-    print("Here is your Pinterest token: ") 
-    print(r.text)
-
-
+   
     token_info = json.loads(r.text)
+
     access_token = token_info.get('access_token')
     refresh_token = token_info.get('refresh_token')
-    
-    print(access_token)
-    print(refresh_token)
+
 
     user_ = main.User.query.filter_by(username=user.username).first()
     user_.pinterest_token = access_token
     user_.pinterest_refresh= refresh_token
     main.db.session.commit()
-
-    print("Committed the following info to database: " + user_.pinterest_token + "and " + user_.pinterest_refresh)
-
-    session['pinterest_token'] = access_token
-    session['pinterest_refresh'] = refresh_token
 
 
 def getPinterestCharges():
@@ -85,8 +68,11 @@ def getPinterestCharges():
     # first, get all ad accounts and add to add account array
     ad_account_ids = []
 
+    # grab client Pinterest token from db
+    token = main.user_.pinterest_token
+    print(token)
 
-    pinterest = OAuth2Session(api_key, token=session.get("pinterest_token"))
+    pinterest = OAuth2Session(api_key, token)
     url = "https://api.pinterest.com/v5/ad_accounts"
     r = pinterest.get(url=url)
     response = json.loads(r.text)

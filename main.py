@@ -1,4 +1,7 @@
+import code
+from ssl import SSL_ERROR_SSL
 from flask import Flask, render_template, request, redirect, url_for, flash, session 
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,10 +13,11 @@ from config import access_key, database_url
 database_url = database_url.replace("postgres://", "postgresql://", 1)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']=database_url
-app.config['SECRET_KEY'] = "test"
+
 
 db=SQLAlchemy(app)
 
+app.secret_key = "adspend1234"
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -46,6 +50,7 @@ login_manager.login_view = 'login'
 db.create_all()
 db.session.commit()
 
+google_state = None
 
 @login_manager.user_loader
 def load(user_id):
@@ -136,21 +141,25 @@ def logout():
 def home():
 
     user = User.query.filter_by(username=current_user.username).first()
-
     pinterest_redirect = False 
+    google_redirect = False
     if request.args.get('state') == None and request.args.get('code') != None:
         pinterest_redirect = True
-   
+    
+    if request.args.get('state') != None and request.args.get('code') != None:
+
+        google_redirect = True
+    
    # Pinterest Authentication
-    if (pinterest_redirect):
+    if pinterest_redirect:
        pinterest_code = request.args.get('code')
        pinterestauth.fetchToken(pinterest_code, user)
 
     # Google Authentication
-    if (session.get('auth_code_type') == 'google'): 
+    elif google_redirect:
         google_code = request.args.get('code')
         if (google_code != None):
-            googleauth.fetchToken(request.url, user)
+            googleauth.fetchToken(request.url, user, request.args.get('state'))
 
 
     # Etsy Authentication 
@@ -173,6 +182,8 @@ def home():
 @app.route('/getsheet', methods=['GET', 'POST'])
 def getsheet():
 
+    session.modified = True
+
     token = session.get('google_token')
     if (token == None):
         flash('Please authorize your Google account before proceeding.')
@@ -183,6 +194,7 @@ def getsheet():
     if (time() >= session['google_token_expir']):
         print(session['google_token_expir'])
         googleauth.refreshToken()
+  
    
 
     # Get My Sheet! 
@@ -197,21 +209,19 @@ def getsheet():
         return redirect(sheets.updateSheet(mySheetId))
     
 @app.route('/googlelogin', methods = ['GET'])
-def googlelogin():
-        googleauth.authorizeGoogle()
+async def googlelogin():
+        await googleauth.authorizeGoogle() # returns url 
+        google_state = session["oauth_state"] 
         return redirect(session.get('google_url'))
 
 @app.route('/etsylogin', methods=['GET'])
 def etsylogin():
         etsyauth.authorizeEtsy()
-        print("authorized?")
         return redirect(session.get('etsy_url'))
 
 @app.route('/pinterestlogin', methods=['GET'])
 def pinterestlogin():
         pinterestauth.authorizePinterest()
-        print("Pinterest has been authorized ")
-        print(session.get('pinterest_url'))
         return redirect(session.get('pinterest_url'))
 
 if __name__ == '__main__':
