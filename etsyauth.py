@@ -71,8 +71,7 @@ def getEtsyCharges(etsy_key, etsy_secret):
 
     # make request
     r = requests.get(url=url, auth=headeroauth, params=payload)
-
-    print("yo:;:")
+    
     print(r.text)
     
     # all charges, must iterate through and add. if there are no charges for the month, cost
