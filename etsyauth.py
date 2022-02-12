@@ -4,6 +4,8 @@ from requests_oauthlib import OAuth1, OAuth1Session
 from flask import session
 from datetime import datetime
 import time
+import json 
+
 
 api_key = config.etsy_api_key
 secret_key = config.etsy_secret_key
@@ -21,6 +23,9 @@ def authorizeEtsy():
     session['resource_key'] = fetch_response.get('oauth_token')
     session['resource_secret'] = fetch_response.get('oauth_token_secret')
     session["etsy_url"] = login_url
+
+    print(session['resource_key'])
+    print(session['resource_secret'])
     
     return login_url
 
@@ -67,9 +72,15 @@ def getEtsyCharges(etsy_key, etsy_secret):
     # make request
     r = requests.get(url=url, auth=headeroauth, params=payload)
 
+    print("yo:;:")
     print(r.text)
     
-    return r
+    # all charges, must iterate through and add. if there are no charges for the month, cost
+    charges = json.loads(r.text)['results']
+    print(charges)
+    if len(charges) == 0:
+        return 0
+   
 
      #shop_id = 28523366
 

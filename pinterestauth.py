@@ -7,8 +7,11 @@ import json
 import base64
 from flask import session
 from requests_oauthlib import OAuth2Session
+from time import time
 
-from googleauth import refreshToken
+
+from flask import Flask
+
 
 
 api_key = config.pinterest_api_key
@@ -27,6 +30,8 @@ def authorizePinterest():
 
     r = requests.get("https://www.pinterest.com/oauth/", params=payload)      
     session['pinterest_url'] = r.url
+
+
   
 def fetchToken(authCode, user):
 
@@ -53,8 +58,11 @@ def fetchToken(authCode, user):
    
     token_info = json.loads(r.text)
 
+    print(token_info)
+    
     access_token = token_info.get('access_token')
     refresh_token = token_info.get('refresh_token')
+
 
 
     user_ = main.User.query.filter_by(username=user.username).first()

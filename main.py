@@ -1,19 +1,22 @@
 import code
 from ssl import SSL_ERROR_SSL
 from flask import Flask, render_template, request, redirect, url_for, flash, session 
+import webbrowser
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 from werkzeug.security import generate_password_hash, check_password_hash
 import etsyauth, googleauth, sheets, pinterestauth
 from time import time
-from config import access_key, database_url
+from config import access_key, database_url, pinterest_api_key, pinterest_secret_key
 
 
 database_url = database_url.replace("postgres://", "postgresql://", 1)
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI']=database_url
+app.config['SQLALCHEMY_DATABASE_URI']= database_url
 
+
+callback_uri = "http://localhost:8080/home"
 
 db=SQLAlchemy(app)
 
@@ -50,7 +53,9 @@ login_manager.login_view = 'login'
 db.create_all()
 db.session.commit()
 
-google_state = None
+
+# OAuth Blueprints: 
+
 
 @login_manager.user_loader
 def load(user_id):
@@ -174,9 +179,8 @@ def home():
     hasGoogleToken = True if token != None else False
     sheet = url_for('getsheet') if hasGoogleToken else "#" 
 
-    getUserInfo(current_user)
 
-    return render_template("home.html", etsy_key=hasEtsyKey, 
+    return render_template("home.html", etsy_key=hasEtsyKey,
                            google_access=request.url, google_token=hasGoogleToken, sheetlink=sheet)
 
 @app.route('/getsheet', methods=['GET', 'POST'])
@@ -190,7 +194,7 @@ def getsheet():
         return redirect(url_for('getsheet'))
         
 
-    # Refresh the token when we hit the make another API call if it aint fresh! 
+    # Refresh the token when we hit the make another API call if it  fresh! 
     if (time() >= session['google_token_expir']):
         print(session['google_token_expir'])
         googleauth.refreshToken()
@@ -221,8 +225,7 @@ def etsylogin():
 
 @app.route('/pinterestlogin', methods=['GET'])
 def pinterestlogin():
-        pinterestauth.authorizePinterest()
-        return redirect(session.get('pinterest_url'))
+    return pinterest.authorize(callback=url_for('home'))
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

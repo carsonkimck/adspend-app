@@ -73,12 +73,12 @@ def updateSheet(spreadsheet_id):
     accounts = {"Etsy": ["C4", 0], "Google": ["C5", 0], "Pinterest": ["C6", 0] }
 
     # Add Etsy Charges
-    # etsyCharges = etsyauth.getEtsyCharges(user.etsy_key, user.etsy_secret)
-    accounts["Etsy"][1] = 5000
+    etsyCharges = etsyauth.getEtsyCharges(user.etsy_key, user.etsy_secret)
+    accounts["Etsy"][1] = etsyCharges
 
-    # Add GoogleAds Charges
-   # googleAdsCharges = googleauth.getGoogleAdsCharges()
-    accounts["Google"][1] = 5000
+    #Add GoogleAds Charges
+    googleAdsCharges = googleauth.getGoogleAdsCharges()
+    accounts["Google"][1] = googleAdsCharges
 
     # Add Pinterest Charges
     # pinterestCharges = pinterestAuth.getPinterestCharges()
@@ -89,6 +89,9 @@ def updateSheet(spreadsheet_id):
   
     keys = accounts.keys()
     print(keys)
+
+    print("here are the accounts")
+    print(accounts)
 
     for key in keys:
         range = accounts[key][0]
@@ -107,8 +110,9 @@ def updateSheet(spreadsheet_id):
             string = string.replace("$", '')
             string = string.replace(",", '')
             existing_charges = float(string)
-            
-        total = 0
+
+        # add total number    
+        total = value
         
         # just update with current monthly total, if there's already value there
         if existing_charges != 0:

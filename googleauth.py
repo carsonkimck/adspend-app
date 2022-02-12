@@ -1,12 +1,13 @@
 import os
 from flask import session
+from httpx import head
 import main, config
 from typing import Text
 from requests_oauthlib import OAuth2Session
 from time import time 
 import json
 import requests
-
+import re
 
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -64,8 +65,7 @@ def refreshToken():
     **extra)
 
 def getGoogleAdsCharges():
-    payload = {"query" : ''' 
-                SELECT
+    payload = {"query" : ''' SELECT
                 campaign.name,
                 campaign.status,
                 segments.device,
@@ -79,16 +79,42 @@ def getGoogleAdsCharges():
             '''
     }
 
-    customer_id = "491-551-6145"
-    url = "https://googleads.googleapis.com/v9/customers/{customer_id}/googleAds:searchStream".format(customer_id=customer_id)
-
 
     google = OAuth2Session(config.google_api_key, token=session.get("google_token"))
-    r = google.put(url=url, params=payload)
+
+    header = {"developer-token" : config.ads_dev_token }
+    r = google.get(url="https://googleads.googleapis.com/v8/customers:listAccessibleCustomers", headers=header)
+    response = json.loads(r.text)['resourceNames']
+    print(response)
+
+    # extract manager ID, first item of array 
+    customer_id = re.findall(r'\d+', response[0])
+    print(customer_id)
+    customer_id = customer_id[0]
+    print(customer_id)
+    # get client customer IDs
+
+
+
+
+    alex_customer_id = "4915516145"
+    carson_customer_id_manager = "9596126529"
+    carson_customer_id_client = "3279295386"
+    url = "https://googleads.googleapis.com/v9/customers/{customer_id}/googleAds:searchStream".format(customer_id=carson_customer_id_client)
+    header = {"developer-token" : config.ads_dev_token, 
+              "login-customer-id" : customer_id}
+
+  
+    r = google.post(url=url, params=payload, headers=header)
 
     response = json.loads(r.text)
 
     print(response)
+
+    if len(response) == 0:
+        print("No campaigns found for this account. Returning 0.")
+        return 0
+
     cost_micros = response["results"]["metrics.cost_micros"]
     print(cost_micros)
     dollar_spend = cost_micros/1000000
