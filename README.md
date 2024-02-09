@@ -1,5 +1,4 @@
 # AdSpend App: Your Ultimate Ad Campaign Spending Tracker
-![AdSpend App](ad spend tracker.png)
 Welcome to AdSpend App, the web application designed to empower users in tracking their ad campaign spending across various platforms. Developed using Flask, a lightweight micro web framework written in Python, AdSpend-App offers a seamless and efficient solution for managing ad expenditures with precision.
 
 ## Features and Workflow
